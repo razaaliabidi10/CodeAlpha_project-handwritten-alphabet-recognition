@@ -5,7 +5,6 @@ import cv2
 
 from PIL import Image
 from pathlib import Path
-from textwrap import dedent
 from tensorflow import keras
 from streamlit_drawable_canvas import st_canvas
 
@@ -25,10 +24,10 @@ MODEL_PATH = Path("model/handwritten_alphabet_model.keras")
 
 
 # ==========================================
-# 2. PREMIUM GLASSMORPHISM DESIGN
+# 2. PREMIUM UI DESIGN
 # ==========================================
 
-st.markdown(dedent("""
+st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -45,8 +44,7 @@ st.markdown(dedent("""
     background: transparent;
 }
 
-.block-container,
-[data-testid="stMainBlockContainer"] {
+.block-container {
     max-width: 1500px !important;
     width: 94% !important;
     padding: 2rem 2rem 3rem 2rem !important;
@@ -57,54 +55,49 @@ h1, h2, h3, p, label {
     font-family: 'Inter', sans-serif !important;
 }
 
-.hero {
-    padding: 35px 10px 30px 10px;
+h1 {
+    font-size: clamp(38px, 5vw, 65px) !important;
+    font-weight: 800 !important;
+    letter-spacing: -2px !important;
+    color: #FFFFFF !important;
 }
 
-.hero-tag {
-    display: inline-block;
-    padding: 8px 15px;
-    border: 1px solid rgba(125,170,255,0.35);
-    border-radius: 30px;
-    color: #A9C8FF;
-    background: rgba(65,105,190,0.13);
-    font-size: 12px;
-    letter-spacing: 1.4px;
-    font-weight: 700;
+h2 {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
 }
 
-.hero h1 {
-    font-size: clamp(38px, 5vw, 65px);
-    line-height: 1.12;
-    font-weight: 800;
-    letter-spacing: -2px;
-    color: white;
-    margin: 22px 0 12px 0;
+h3 {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
 }
 
-.gradient-text {
-    background: linear-gradient(90deg, #80B7FF, #A78BFA);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.hero p {
+.hero-subtitle {
     color: #A9B7D0;
-    font-size: 16px;
+    font-size: 17px;
     line-height: 1.7;
     max-width: 750px;
 }
 
-.status {
-    display: inline-block;
-    color: #70E4B0;
-    border: 1px solid rgba(76,220,155,0.3);
-    background: rgba(43,180,120,0.10);
-    padding: 8px 14px;
+.hero-tag {
+    color: #A9C8FF;
+    background: rgba(65,105,190,0.13);
+    border: 1px solid rgba(125,170,255,0.35);
     border-radius: 30px;
-    font-size: 11px;
+    padding: 8px 15px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 1.3px;
+}
+
+.status {
+    color: #70E4B0;
+    background: rgba(43,180,120,0.10);
+    border: 1px solid rgba(76,220,155,0.3);
+    border-radius: 30px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 [data-testid="stVerticalBlockBorderWrapper"] {
@@ -153,14 +146,6 @@ h1, h2, h3, p, label {
     box-shadow: 0 8px 25px rgba(74,115,230,0.3);
 }
 
-[data-testid="stMetricValue"] {
-    color: #91BCFF;
-}
-
-[data-testid="stMetricLabel"] {
-    color: #D9E3F5;
-}
-
 [data-testid="stFileUploader"] {
     background: rgba(255,255,255,0.035);
     border: 1px dashed rgba(140,175,230,0.4);
@@ -172,37 +157,9 @@ h1, h2, h3, p, label {
     background: linear-gradient(90deg, #4389F5, #A17BFA);
 }
 
-.result-card {
-    background: rgba(78,130,230,0.13);
-    border: 1px solid rgba(130,175,255,0.3);
-    border-radius: 20px;
-    padding: 25px;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.result-letter {
-    color: white;
-    font-size: 85px;
-    font-weight: 800;
-    line-height: 1.3;
-}
-
-.result-confidence {
-    color: #91BCFF;
-    font-size: 21px;
-    font-weight: 700;
-}
-
-.result-label {
-    color: #AABBD7;
-    font-size: 12px;
-    letter-spacing: 1px;
-}
-
 .section-caption {
     color: #A9B7D0;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .footer {
@@ -214,26 +171,17 @@ h1, h2, h3, p, label {
 }
 
 @media (max-width: 768px) {
-    .block-container,
-    [data-testid="stMainBlockContainer"] {
+    .block-container {
         width: 98% !important;
         padding: 1rem 0.5rem 2rem 0.5rem !important;
     }
 
-    .hero {
-        padding: 20px 5px;
-    }
-
-    .hero h1 {
-        font-size: 38px;
-    }
-
-    .result-letter {
-        font-size: 65px;
+    h1 {
+        font-size: 38px !important;
     }
 }
 </style>
-"""), unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 
 # ==========================================
@@ -328,19 +276,13 @@ def show_prediction(processed, model):
 
     st.markdown("### ✨ Recognition Result")
 
-    st.markdown(
-        dedent(f"""
-        <div class="result-card">
-            <div class="result-label">PREDICTED LETTER</div>
-            <div class="result-letter">{predicted_letter}</div>
-            <div class="result-confidence">{confidence:.2f}%</div>
-            <div class="result-label">MODEL CONFIDENCE</div>
-        </div>
-        """),
-        unsafe_allow_html=True
+    st.metric(
+        label="Predicted Letter",
+        value=predicted_letter,
+        delta=f"{confidence:.2f}% model confidence"
     )
 
-    st.markdown("**Top 3 predictions**")
+    st.markdown("#### Top 3 Predictions")
 
     for index in top_indices:
 
@@ -352,7 +294,7 @@ def show_prediction(processed, model):
 
         st.progress(score)
 
-    st.markdown("**Processed model input**")
+    st.markdown("#### Processed Model Input")
 
     st.image(
         processed,
@@ -362,32 +304,33 @@ def show_prediction(processed, model):
 
 
 # ==========================================
-# 6. HERO SECTION
+# 6. HERO SECTION - NATIVE STREAMLIT
 # ==========================================
 
 st.markdown(
-    dedent("""
-    <div class="hero">
-        <span class="hero-tag">
-            ✦ MACHINE LEARNING PROJECT
-        </span>
-
-        <h1>
-            Your handwriting,<br>
-            <span class="gradient-text">decoded by AI.</span>
-        </h1>
-
-        <p>
-            An intelligent handwritten alphabet recognition system.
-            Draw a letter or upload an image and let the CNN model
-            recognize it.
-        </p>
-
-        <span class="status">● MODEL READY</span>
-    </div>
-    """),
+    '<div class="hero-tag">✦ MACHINE LEARNING PROJECT</div>',
     unsafe_allow_html=True
 )
+
+st.title("Your handwriting, decoded by AI.")
+
+st.markdown(
+    """
+    <p class="hero-subtitle">
+    An intelligent handwritten alphabet recognition system.
+    Draw a letter or upload an image and let the CNN model
+    recognize it.
+    </p>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    '<div class="status">● MODEL READY</div>',
+    unsafe_allow_html=True
+)
+
+st.write("")
 
 
 # ==========================================
@@ -489,24 +432,9 @@ with tab1:
 
             else:
 
-                st.markdown(
-                    dedent("""
-                    <div style="
-                        text-align:center;
-                        padding:65px 15px;
-                        color:#9BAECC;
-                    ">
-                        <div style="font-size:50px;">✍️</div>
-                        <h3 style="color:white;">
-                            Ready to recognize
-                        </h3>
-                        <p>
-                            Draw a letter on the canvas
-                            and click the prediction button.
-                        </p>
-                    </div>
-                    """),
-                    unsafe_allow_html=True
+                st.info(
+                    "✍️ Draw a letter on the canvas and click "
+                    "'Recognize My Letter' to see the prediction."
                 )
 
 
@@ -575,7 +503,9 @@ with tab2:
 
                 if processed is None:
 
-                    st.warning("No letter detected. Please upload another image.")
+                    st.warning(
+                        "No letter detected. Please upload another image."
+                    )
 
                 else:
 
@@ -586,24 +516,9 @@ with tab2:
 
             else:
 
-                st.markdown(
-                    dedent("""
-                    <div style="
-                        text-align:center;
-                        padding:65px 15px;
-                        color:#9BAECC;
-                    ">
-                        <div style="font-size:50px;">🧠</div>
-                        <h3 style="color:white;">
-                            Awaiting your image
-                        </h3>
-                        <p>
-                            Your prediction and confidence
-                            results will appear here.
-                        </p>
-                    </div>
-                    """),
-                    unsafe_allow_html=True
+                st.info(
+                    "🧠 Your prediction and confidence results "
+                    "will appear here after uploading an image."
                 )
 
 
@@ -611,13 +526,12 @@ with tab2:
 # 11. FOOTER
 # ==========================================
 
-st.markdown(
-    dedent("""
-    <div class="footer">
-        LETTERAI • POWERED BY CNN, TENSORFLOW & EMNIST
-        <br><br>
-        Built as a Machine Learning portfolio project.
-    </div>
-    """),
-    unsafe_allow_html=True
+st.divider()
+
+st.caption(
+    "LETTERAI • POWERED BY CNN, TENSORFLOW & EMNIST"
+)
+
+st.caption(
+    "Built as a Machine Learning portfolio project."
 )
