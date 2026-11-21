@@ -2,8 +2,6 @@
 import streamlit as st
 import numpy as np
 import cv2
-import base64
-from io import BytesIO
 from PIL import Image
 from pathlib import Path
 from tensorflow import keras
@@ -82,18 +80,23 @@ def show_prediction(processed, model):
     confidence = prediction[top_indices[0]] * 100
 
     st.success(f"Predicted letter: {predicted_letter}")
-    st.metric("Confidence", f"{confidence:.2f}%")
 
-    st.write("### Top 3 predictions")
+    st.metric(
+        "Confidence",
+        f"{confidence:.2f}%"
+    )
+
+    st.subheader("Top 3 Predictions")
 
     for index in top_indices:
         letter = chr(index + 65)
         score = prediction[index] * 100
 
-        st.write(f"**{letter}** — {score:.2f}%")
+        st.write(f"**{letter} — {score:.2f}%**")
         st.progress(float(prediction[index]))
 
-    st.write("### Processed image")
+    st.subheader("Processed Image")
+
     st.image(
         processed,
         caption="Model input (28 × 28)",
@@ -126,7 +129,7 @@ tab1, tab2 = st.tabs([
 
 with tab1:
 
-    st.subheader("Draw your letter")
+    st.subheader("Draw Your Letter")
 
     drawing = st_canvas(
         fill_color="rgba(255, 255, 255, 0)",
@@ -136,40 +139,34 @@ with tab1:
         height=250,
         width=250,
         drawing_mode="freedraw",
+        return_image_data=True,
         key="letter_canvas"
     )
 
-    if st.button("Recognize drawn letter"):
+    if st.button("Recognize Drawn Letter"):
 
-        if not drawing.image_data_url:
+        if drawing.image_data is None:
             st.warning("Please draw a letter first.")
 
         else:
-            try:
-                image_bytes = base64.b64decode(
-                    drawing.image_data_url.split(",")[1]
-                )
+            rgba = drawing.image_data.astype("uint8")
 
-                image = Image.open(
-                    BytesIO(image_bytes)
-                ).convert("RGB")
+            image = Image.fromarray(
+                rgba,
+                "RGBA"
+            ).convert("RGB")
 
-                processed = preprocess_image(image)
+            processed = preprocess_image(image)
 
-                if processed is None:
-                    st.warning(
-                        "No letter detected. Please draw again."
-                    )
-                else:
-                    show_prediction(processed, model)
-
-            except Exception as error:
-                st.error(f"Prediction failed: {error}")
+            if processed is None:
+                st.warning("No letter detected. Please draw again.")
+            else:
+                show_prediction(processed, model)
 
 
 with tab2:
 
-    st.subheader("Upload a handwritten letter")
+    st.subheader("Upload a Handwritten Letter")
 
     uploaded = st.file_uploader(
         "Choose an image",
@@ -182,18 +179,16 @@ with tab2:
 
         st.image(
             image,
-            caption="Uploaded image",
+            caption="Uploaded Image",
             width=250
         )
 
-        if st.button("Recognize uploaded letter"):
+        if st.button("Recognize Uploaded Letter"):
 
             processed = preprocess_image(image)
 
             if processed is None:
-                st.warning(
-                    "No letter detected in this image."
-                )
+                st.warning("No letter detected in this image.")
             else:
                 show_prediction(processed, model)
 
