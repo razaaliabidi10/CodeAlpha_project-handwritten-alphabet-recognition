@@ -2,10 +2,17 @@
 import streamlit as st
 import numpy as np
 import cv2
+
 from PIL import Image
 from pathlib import Path
+from textwrap import dedent
 from tensorflow import keras
 from streamlit_drawable_canvas import st_canvas
+
+
+# ==========================================
+# 1. PAGE CONFIGURATION
+# ==========================================
 
 st.set_page_config(
     page_title="LetterAI | Handwriting Recognition",
@@ -17,11 +24,11 @@ st.set_page_config(
 MODEL_PATH = Path("model/handwritten_alphabet_model.keras")
 
 
-# =========================
-# 1. PREMIUM UI DESIGN
-# =========================
+# ==========================================
+# 2. PREMIUM GLASSMORPHISM DESIGN
+# ==========================================
 
-st.markdown("""
+st.markdown(dedent("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -226,21 +233,21 @@ h1, h2, h3, p, label {
     }
 }
 </style>
-""", unsafe_allow_html=True)
+"""), unsafe_allow_html=True)
 
 
-# =========================
-# 2. LOAD TRAINED MODEL
-# =========================
+# ==========================================
+# 3. LOAD TRAINED MODEL
+# ==========================================
 
 @st.cache_resource
 def load_model():
     return keras.models.load_model(MODEL_PATH)
 
 
-# =========================
-# 3. IMAGE PREPROCESSING
-# =========================
+# ==========================================
+# 4. IMAGE PREPROCESSING
+# ==========================================
 
 def preprocess_image(image):
 
@@ -302,9 +309,9 @@ def preprocess_image(image):
     return canvas.astype("float32") / 255.0
 
 
-# =========================
-# 4. PREDICTION FUNCTION
-# =========================
+# ==========================================
+# 5. PREDICTION FUNCTION
+# ==========================================
 
 def show_prediction(processed, model):
 
@@ -322,22 +329,14 @@ def show_prediction(processed, model):
     st.markdown("### ✨ Recognition Result")
 
     st.markdown(
-        f"""
+        dedent(f"""
         <div class="result-card">
-            <div class="result-label">
-                PREDICTED LETTER
-            </div>
-            <div class="result-letter">
-                {predicted_letter}
-            </div>
-            <div class="result-confidence">
-                {confidence:.2f}%
-            </div>
-            <div class="result-label">
-                MODEL CONFIDENCE
-            </div>
+            <div class="result-label">PREDICTED LETTER</div>
+            <div class="result-letter">{predicted_letter}</div>
+            <div class="result-confidence">{confidence:.2f}%</div>
+            <div class="result-label">MODEL CONFIDENCE</div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True
     )
 
@@ -349,9 +348,7 @@ def show_prediction(processed, model):
 
         score = float(prediction[index])
 
-        st.write(
-            f"**{letter} — {score * 100:.2f}%**"
-        )
+        st.write(f"**{letter} — {score * 100:.2f}%**")
 
         st.progress(score)
 
@@ -364,41 +361,38 @@ def show_prediction(processed, model):
     )
 
 
-# =========================
-# 5. HERO SECTION
-# =========================
+# ==========================================
+# 6. HERO SECTION
+# ==========================================
 
-st.markdown("""
-<div class="hero">
-
-    <span class="hero-tag">
-        ✦ MACHINE LEARNING PROJECT
-    </span>
-
-    <h1>
-        Your handwriting,<br>
-        <span class="gradient-text">
-            decoded by AI.
+st.markdown(
+    dedent("""
+    <div class="hero">
+        <span class="hero-tag">
+            ✦ MACHINE LEARNING PROJECT
         </span>
-    </h1>
 
-    <p>
-        An intelligent handwritten alphabet recognition system.
-        Draw a letter or upload an image and let the CNN model
-        recognize it.
-    </p>
+        <h1>
+            Your handwriting,<br>
+            <span class="gradient-text">decoded by AI.</span>
+        </h1>
 
-    <span class="status">
-        ● MODEL READY
-    </span>
+        <p>
+            An intelligent handwritten alphabet recognition system.
+            Draw a letter or upload an image and let the CNN model
+            recognize it.
+        </p>
 
-</div>
-""", unsafe_allow_html=True)
+        <span class="status">● MODEL READY</span>
+    </div>
+    """),
+    unsafe_allow_html=True
+)
 
 
-# =========================
-# 6. MODEL INITIALIZATION
-# =========================
+# ==========================================
+# 7. MODEL INITIALIZATION
+# ==========================================
 
 try:
 
@@ -411,9 +405,9 @@ except Exception as error:
     st.stop()
 
 
-# =========================
-# 7. MAIN INTERFACE
-# =========================
+# ==========================================
+# 8. MAIN INTERFACE
+# ==========================================
 
 st.markdown("## Explore the Recognizer")
 
@@ -423,9 +417,9 @@ tab1, tab2 = st.tabs([
 ])
 
 
-# =========================
-# 8. DRAWING INTERFACE
-# =========================
+# ==========================================
+# 9. DRAWING INTERFACE
+# ==========================================
 
 with tab1:
 
@@ -472,9 +466,7 @@ with tab1:
 
                 if drawing.image_data is None:
 
-                    st.warning(
-                        "Please draw a letter first."
-                    )
+                    st.warning("Please draw a letter first.")
 
                 else:
 
@@ -489,21 +481,16 @@ with tab1:
 
                     if processed is None:
 
-                        st.warning(
-                            "No letter detected. Please try again."
-                        )
+                        st.warning("No letter detected. Please try again.")
 
                     else:
 
-                        show_prediction(
-                            processed,
-                            model
-                        )
+                        show_prediction(processed, model)
 
             else:
 
                 st.markdown(
-                    """
+                    dedent("""
                     <div style="
                         text-align:center;
                         padding:65px 15px;
@@ -518,14 +505,14 @@ with tab1:
                             and click the prediction button.
                         </p>
                     </div>
-                    """,
+                    """),
                     unsafe_allow_html=True
                 )
 
 
-# =========================
-# 9. IMAGE UPLOAD INTERFACE
-# =========================
+# ==========================================
+# 10. IMAGE UPLOAD INTERFACE
+# ==========================================
 
 with tab2:
 
@@ -588,9 +575,7 @@ with tab2:
 
                 if processed is None:
 
-                    st.warning(
-                        "No letter detected. Please upload another image."
-                    )
+                    st.warning("No letter detected. Please upload another image.")
 
                 else:
 
@@ -602,7 +587,7 @@ with tab2:
             else:
 
                 st.markdown(
-                    """
+                    dedent("""
                     <div style="
                         text-align:center;
                         padding:65px 15px;
@@ -617,24 +602,22 @@ with tab2:
                             results will appear here.
                         </p>
                     </div>
-                    """,
+                    """),
                     unsafe_allow_html=True
                 )
 
 
-# =========================
-# 10. FOOTER
-# =========================
+# ==========================================
+# 11. FOOTER
+# ==========================================
 
-st.markdown("""
-<div class="footer">
-
-    LETTERAI • POWERED BY CNN, TENSORFLOW & EMNIST
-
-    <br><br>
-
-    Built as a Machine Learning portfolio project.
-
-</div>
-""", unsafe_allow_html=True)
-
+st.markdown(
+    dedent("""
+    <div class="footer">
+        LETTERAI • POWERED BY CNN, TENSORFLOW & EMNIST
+        <br><br>
+        Built as a Machine Learning portfolio project.
+    </div>
+    """),
+    unsafe_allow_html=True
+)
